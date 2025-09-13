@@ -18,7 +18,6 @@
 /* Private function prototypes */
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
-void Error_Handler(void);
 
 /**
   * @brief  The application entry point.
