@@ -1,0 +1,70 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+env:
+  ARM_TOOLCHAIN_VERSION: "13.2.Rel1"
+
+jobs:
+  release:
+    name: Create Release
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup HAL Library
+      run: |
+        chmod +x setup_hal.sh
+        ./setup_hal.sh
+        
+    - name: Install ARM GCC Toolchain
+      run: |
+        wget -q https://developer.arm.com/-/media/Files/downloads/gnu/${{ env.ARM_TOOLCHAIN_VERSION }}/binrel/arm-gnu-toolchain-${{ env.ARM_TOOLCHAIN_VERSION }}-x86_64-arm-none-eabi.tar.xz
+        tar -xf arm-gnu-toolchain-${{ env.ARM_TOOLCHAIN_VERSION }}-x86_64-arm-none-eabi.tar.xz
+        echo "$PWD/arm-gnu-toolchain-${{ env.ARM_TOOLCHAIN_VERSION }}-x86_64-arm-none-eabi/bin" >> $GITHUB_PATH
+        
+    - name: Build Release Firmware
+      run: |
+        mkdir -p build
+        cd build
+        cmake -DCMAKE_BUILD_TYPE=Release \
+              -DCMAKE_TOOLCHAIN_FILE=../cmake/arm-none-eabi-gcc.cmake \
+              ..
+        make -j$(nproc)
+        
+    - name: Generate release info
+      run: |
+        cd build
+        echo "# STM32F103 LED Blink Firmware" > release-notes.md
+        echo "" >> release-notes.md
+        echo "**Version:** ${{ github.ref_name }}" >> release-notes.md
+        echo "**Commit:** ${{ github.sha }}" >> release-notes.md
+        echo "**Build Date:** $(date)" >> release-notes.md
+        echo "" >> release-notes.md
+        echo "## Memory Usage" >> release-notes.md
+        echo "\`\`\`" >> release-notes.md
+        arm-none-eabi-size stm32f103_led_blink.elf >> release-notes.md
+        echo "\`\`\`" >> release-notes.md
+        echo "" >> release-notes.md
+        echo "## Files Included" >> release-notes.md
+        echo "- \`stm32f103_led_blink.elf\` - ELF executable for debugging" >> release-notes.md
+        echo "- \`stm32f103_led_blink.hex\` - Intel HEX format for flashing" >> release-notes.md
+        echo "- \`stm32f103_led_blink.bin\` - Binary format for flashing" >> release-notes.md
+        
+    - name: Create Release
+      uses: softprops/action-gh-release@v1
+      with:
+        files: |
+          build/stm32f103_led_blink.elf
+          build/stm32f103_led_blink.hex
+          build/stm32f103_led_blink.bin
+        body_path: build/release-notes.md
+        draft: false
+        prerelease: false
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

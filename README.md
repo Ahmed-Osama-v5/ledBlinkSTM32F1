@@ -1,5 +1,8 @@
 # STM32F103 LED Blink Project
 
+[![CI/CD Pipeline](https://github.com/yourusername/stm32f103-led-blink/actions/workflows/ci.yml/badge.svg)](https://github.com/yourusername/stm32f103-led-blink/actions/workflows/ci.yml)
+[![Release](https://github.com/yourusername/stm32f103-led-blink/actions/workflows/release.yml/badge.svg)](https://github.com/yourusername/stm32f103-led-blink/actions/workflows/release.yml)
+
 A simple LED blinking project for STM32F103 microcontroller using CMake build system and STM32 HAL library.
 
 ## Features
@@ -256,6 +259,74 @@ HAL_Delay(500);  // 500ms = 0.5 seconds
 # Using OpenOCD and GDB
 openocd -f interface/stlink.cfg -f target/stm32f1x.cfg
 arm-none-eabi-gdb build/stm32f103_led_blink.elf
+## CI/CD Pipeline
+
+This project includes a comprehensive GitHub Actions CI/CD pipeline with the following stages:
+
+### Automated Workflows
+
+#### 1. **CI/CD Pipeline** (`.github/workflows/ci.yml`)
+Triggered on push to `main`/`develop` branches and pull requests:
+
+- **Static Analysis Stage**
+  - **Cppcheck**: Comprehensive static analysis for C/C++ code
+  - **Clang-Tidy**: Modern C++ linting and static analysis
+  - **Custom suppressions**: Configured to ignore HAL library false positives
+
+- **Build Stage**
+  - **Multi-configuration**: Builds both Debug and Release versions
+  - **ARM GCC Toolchain**: Automatically installs latest ARM GCC
+  - **Memory Analysis**: Reports flash/RAM usage for each build
+  - **Artifact Upload**: Stores `.elf`, `.hex`, and `.bin` files
+
+- **Security Scan Stage**
+  - **Semgrep**: Security vulnerability scanning
+  - **Bandit**: Python security analysis (if Python scripts present)
+
+- **Documentation Stage**
+  - **Doxygen**: Automatic API documentation generation
+  - **Artifact Upload**: Stores generated documentation
+
+#### 2. **Release Workflow** (`.github/workflows/release.yml`)
+Triggered on version tags (e.g., `v1.0.0`):
+
+- Builds optimized release firmware
+- Generates detailed release notes with memory usage
+- Creates GitHub release with firmware binaries
+- Automatically uploads `.elf`, `.hex`, and `.bin` files
+
+### Configuration Files
+
+- **`.cppcheck-suppressions`**: Suppresses false positives from HAL library
+- **`.clang-tidy`**: Configures modern C++ checks appropriate for embedded development
+
+### Using the CI/CD Pipeline
+
+1. **Automatic Builds**: Every push triggers the full pipeline
+2. **Pull Request Checks**: All PRs must pass CI before merging
+3. **Release Creation**: Push a version tag to create a release:
+   ```bash
+   git tag v1.0.0
+   git push origin v1.0.0
+   ```
+4. **Artifact Download**: Build artifacts are available for 30 days
+5. **Status Badges**: README shows current build status
+
+### Local Static Analysis
+
+Run the same checks locally:
+
+```bash
+# Install tools
+sudo apt install cppcheck clang-tidy
+
+# Generate compile commands
+mkdir build && cd build
+cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=ON ..
+
+# Run static analysis
+cppcheck --enable=all --project=compile_commands.json
+run-clang-tidy -p .
 ```
 
 ## License

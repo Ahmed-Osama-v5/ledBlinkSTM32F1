@@ -1,0 +1,11 @@
+# Cppcheck suppressions for STM32 HAL project
+# Suppress system include warnings
+missingIncludeSystem
+# Suppress HAL library warnings
+unusedFunction:hal/*
+unmatchedSuppression:hal/*
+# Suppress startup file warnings
+*:startup/*
+# Suppress CMSIS warnings
+*:*cmsis*
+*:*CMSIS*
