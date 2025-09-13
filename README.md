@@ -1,6 +1,6 @@
 # STM32F103 LED Blink Project
 
-[![CI/CD Pipeline](https://github.com/yourusername/stm32f103-led-blink/actions/workflows/ci.yml/badge.svg)](https://github.com/yourusername/stm32f103-led-blink/actions/workflows/ci.yml)
+[![CI/CD Pipeline](https://github.com/yourusername/stm32f103-led-blink/actions/workflows/ci.yml/badge.svg?branch=master)](https://github.com/yourusername/stm32f103-led-blink/actions/workflows/ci.yml)
 [![Release](https://github.com/yourusername/stm32f103-led-blink/actions/workflows/release.yml/badge.svg)](https://github.com/yourusername/stm32f103-led-blink/actions/workflows/release.yml)
 
 A simple LED blinking project for STM32F103 microcontroller using CMake build system and STM32 HAL library.
